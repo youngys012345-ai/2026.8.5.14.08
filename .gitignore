@@ -1,0 +1,57 @@
+# 公开仓忽略规则：禁止推送说明性/项目相关文本与大数据
+
+# ---------- 说明文档（一律不推送）----------
+README.md
+README.*
+docs/
+resources/
+configs/
+*.local.md
+notes/
+调研*
+讲稿*
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+
+# ---------- 数据与特征 ----------
+data/public/**
+data/internal/**
+data/features/**
+!data/public/.gitkeep
+!data/internal/.gitkeep
+!data/features/.gitkeep
+
+# ---------- 训练产物 ----------
+outputs/
+runs/
+checkpoints/
+results/
+*.pt
+*.pth
+*.ckpt
+wandb/
+lightning_logs/
+
+# ---------- 上游克隆 ----------
+third_party/**
+!third_party/.gitkeep
+
+# ---------- 测试与临时 ----------
+tests/
+scripts/_local/
+tmp/
+scratch/
+
+# ---------- IDE / 系统 ----------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
