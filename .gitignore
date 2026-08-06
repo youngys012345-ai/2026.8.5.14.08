@@ -1,26 +1,22 @@
-# 公开仓忽略规则：禁止推送说明性/项目相关文本与大数据
+# Git ignore：大数据与密钥不入库；文档与配置可入库供内网使用
 
-# ---------- 说明文档（一律不推送）----------
-README.md
-README.*
-docs/
-resources/
-configs/
+# 本地私有备注
 *.local.md
 notes/
-调研*
-讲稿*
+.env
+.env.*
 
-# ---------- Python ----------
+# 外网调研原文（体积/版权，按需本地保留）
+调研报告外部原稿/
+
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
 venv/
-.env
-.env.*
 
-# ---------- 数据与特征 ----------
+# 数据与特征实体
 data/public/**
 data/internal/**
 data/features/**
@@ -28,7 +24,7 @@ data/features/**
 !data/internal/.gitkeep
 !data/features/.gitkeep
 
-# ---------- 训练产物 ----------
+# 训练产物
 outputs/
 runs/
 checkpoints/
@@ -39,17 +35,18 @@ results/
 wandb/
 lightning_logs/
 
-# ---------- 上游克隆 ----------
+# 上游克隆实体（用脚本再拉）
 third_party/**
 !third_party/.gitkeep
+!third_party/README.md
 
-# ---------- 测试与临时 ----------
-tests/
+# 临时
+tests/**/__pycache__/
 scripts/_local/
 tmp/
 scratch/
 
-# ---------- IDE / 系统 ----------
+# IDE
 .idea/
 .vscode/
 .DS_Store

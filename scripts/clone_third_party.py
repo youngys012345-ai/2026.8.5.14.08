@@ -1,38 +1,39 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-YAML_PATH = ROOT / "resources" / "datasets.yaml"
+CONFIG_PATH = ROOT / "config.json"
 
 
 def main() -> None:
-    try:
-        import yaml
-    except ImportError:
-        print("pyyaml required", file=sys.stderr)
-        sys.exit(1)
+    cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    if cfg.get("mode") == "design":
+        print("mode=design: listing clone plan only (no git clone)")
+        for name, meta in cfg.get("third_party", {}).items():
+            print(
+                f"{name}: enabled={meta.get('enabled')} "
+                f"-> {meta.get('path')} url={meta.get('url')}"
+            )
+        print("Intranet: set mode=run then re-run to clone.")
+        return
 
-    if not YAML_PATH.exists():
-        print(f"missing {YAML_PATH} (local only, not in git)", file=sys.stderr)
-        sys.exit(1)
-
-    data = yaml.safe_load(YAML_PATH.read_text(encoding="utf-8"))
-    repos = (data or {}).get("third_party", {})
-    root_tp = ROOT / "third_party"
+    root_tp = ROOT / cfg.get("paths", {}).get("third_party", "third_party")
     root_tp.mkdir(parents=True, exist_ok=True)
-
-    for _name, meta in repos.items():
-        url = meta["url"]
+    for name, meta in cfg.get("third_party", {}).items():
+        if not meta.get("enabled", True):
+            print(f"skip disabled {name}")
+            continue
         path = ROOT / meta["path"]
         if path.exists() and any(path.iterdir()):
-            print(f"skip {path}")
+            print(f"skip exists {path}")
             continue
-        path.parent.mkdir(parents=True, exist_ok=True)
-        cmd = ["git", "clone", "--depth", "1", url, str(path)]
+        depth = str(meta.get("depth", 1))
+        cmd = ["git", "clone", "--depth", depth, meta["url"], str(path)]
         print("+", " ".join(cmd))
         subprocess.run(cmd, check=True)
 

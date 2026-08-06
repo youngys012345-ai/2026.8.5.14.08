@@ -1,0 +1,89 @@
+# 预研协议配置：外网公开集训练 → 内网泛化验证
+# 大文件路径可在内网环境覆盖
+
+project:
+  name: sop-action-extraction-preresearch
+  goals:
+    - A_boundary   # SOP 动作起止边界
+    - B_sequence   # 完整动作序列（包含 A）
+
+hardware:
+  local:
+    device: cpu
+    roles: [config, annotation_tools, smoke_check, report]
+  intranet:
+    device: cuda
+    gpus: 8
+    gpu_model: RTX_4090_24GB
+    recommended_parallel_gpus: [2, 4]
+
+protocol:
+  train_on_internal_video: false   # P1 主结论：训练不碰内部视频
+  transfer: external_train_to_internal_eval
+  annotation_scale: few_shot_eval_only  # 不做大规模标注重训
+
+datasets:
+  primary_for_A:
+    - gtea
+    - egoprocel
+    - egoper_normal
+  primary_for_B:
+    - egoper_normal_train
+    - egoper_error_test
+  auxiliary:
+    - assembly101
+    - industreal  # 可选，非第一轮必训
+
+experiments:
+  goal_A:
+    method: ProTAS
+    variants:
+      - id: A-single
+        train: per_dataset
+      - id: A-multi
+        train: shared_backbone_multi_head  # M1
+      - id: A-crossview
+        train: optional_assembly101
+        enabled: false
+  goal_B:
+    method: EgoPED
+    train_correct_only: true
+    variants:
+      - id: B-single
+        train: egoper_correct
+      - id: B-multi
+        train: multi_task_correct
+        enabled: true
+
+metrics:
+  goal_A:
+    - frame_acc
+    - edit
+    - f1_at_0.1
+    - f1_at_0.25
+    - f1_at_0.5
+    - boundary_mae
+    - boundary_delta_acc  # δ ∈ {0.5s, 1s, 2s}
+    - overseg_ratio
+  goal_B:
+    - sequence_edit_distance
+    - step_precision
+    - step_recall
+    - eda
+    - frame_auc
+  comparison:
+    - delta_f1_0.5
+    - transfer_gap
+    - win_rate
+
+paths:
+  public_data: data/public
+  internal_data: data/internal
+  features: data/features
+  third_party: third_party
+  outputs: outputs
+
+vlm_followup:
+  phase: after_A_B_prototype
+  candidates: [clip_zero_shot, qframe_aks, prego_llm]
+  defer: [mistsense_full]
