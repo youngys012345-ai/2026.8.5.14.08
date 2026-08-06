@@ -1,22 +1,16 @@
-# Git ignore：大数据与密钥不入库；文档与配置可入库供内网使用
+# 大数据与密钥不入库
 
-# 本地私有备注
 *.local.md
 notes/
 .env
 .env.*
 
-# 外网调研原文（体积/版权，按需本地保留）
-调研报告外部原稿/
-
-# Python
 __pycache__/
 *.py[cod]
-*.egg-info/
 .venv/
 venv/
+.pytest_cache/
 
-# 数据与特征实体
 data/public/**
 data/internal/**
 data/features/**
@@ -24,31 +18,17 @@ data/features/**
 !data/internal/.gitkeep
 !data/features/.gitkeep
 
-# 训练产物
 outputs/
-runs/
-checkpoints/
-results/
 *.pt
 *.pth
 *.ckpt
 wandb/
-lightning_logs/
 
-# 上游克隆实体（用脚本再拉）
 third_party/**
 !third_party/.gitkeep
 !third_party/README.md
 
-# 临时
-tests/**/__pycache__/
-scripts/_local/
-tmp/
-scratch/
-
-# IDE
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
-*.swp
